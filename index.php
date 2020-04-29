@@ -117,17 +117,17 @@ $task_array = [
 
                     <label class="checkbox">
                         <!--добавить сюда атрибут "checked", если переменная $show_complete_tasks равна единице-->
-                        <input class="checkbox__input visually-hidden show_completed" type="checkbox" <?if($show_complete_tasks == 1):?>checked<?endif;?>>
+                        <input class="checkbox__input visually-hidden show_completed" type="checkbox" <?php if($show_complete_tasks == 1): ?>checked<?php endif; ?>>
                         <span class="checkbox__text">Показывать выполненные</span>
                     </label>
                 </div>
 
                 <table class="tasks">
-                    <?
+                    <?php
                         foreach($task_array as $val):
                         if($show_complete_tasks == 0 && $val['completed']) continue;
                     ?>
-                    <tr class="tasks__item task <?if($val['completed']):?>task--completed<?endif;?>">
+                    <tr class="tasks__item task <?php if($val['completed']): ?>task--completed<?php endif; ?>">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
                                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
@@ -141,7 +141,7 @@ $task_array = [
 
                         <td class="task__date"><?=$val['date']?></td>
                     </tr>
-                    <?endforeach;?>
+                    <?php endforeach; ?>
                 </table>
             </main>
         </div>
