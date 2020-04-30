@@ -45,12 +45,12 @@ $task_array = [
     ]
 ];
 
-function task_count($arr, $name)
+function task_count($arr, $category)
 {
     $count = 0;
     foreach ($arr as $val)
     {
-        if($val['category'] == $name)
+        if ($val['category'] === $category)
         {
             $count++;
         }
@@ -132,7 +132,7 @@ function task_count($arr, $name)
 
                     <label class="checkbox">
                         <!--добавить сюда атрибут "checked", если переменная $show_complete_tasks равна единице-->
-                        <input class="checkbox__input visually-hidden show_completed" type="checkbox" <?php if($show_complete_tasks == 1): ?>checked<?php endif; ?>>
+                        <input class="checkbox__input visually-hidden show_completed" type="checkbox" <?php if ($show_complete_tasks == 1): ?>checked<?php endif; ?>>
                         <span class="checkbox__text">Показывать выполненные</span>
                     </label>
                 </div>
@@ -142,7 +142,7 @@ function task_count($arr, $name)
                         foreach($task_array as $val):
                         if($show_complete_tasks == 0 && $val['completed']) continue;
                     ?>
-                    <tr class="tasks__item task <?if($val['completed']):?>task--completed<?endif;?>">
+                    <tr class="tasks__item task <?php if ($val['completed']): ?>task--completed<?php endif ;?>">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
                                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
