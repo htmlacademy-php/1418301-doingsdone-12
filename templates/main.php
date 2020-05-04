@@ -45,7 +45,7 @@
                         foreach($task_array as $val):
                         if($show_complete_tasks == 0 && $val['completed']) continue;
                     ?>
-                    <tr class="tasks__item task <?php if($val['completed']): ?>task--completed<?php endif; ?>">
+                    <tr class="tasks__item task<?php if($val['completed']): ?> task--completed<?php endif; if(!task_date_ckeck($val['date'])): ?> task--important<?php endif; ?>">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
                                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
@@ -57,7 +57,7 @@
                             <a class="download-link" href="#">Home.psd</a>
                         </td>
 
-                        <td class="task__date"><?=$val['date']?></td>
+                        <td class="task__date"><?php if($val['date'] != null) print(date("d.m.Y",$val['date'])); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </table>
