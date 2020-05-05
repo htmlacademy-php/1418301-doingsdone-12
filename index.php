@@ -9,25 +9,25 @@ $project_array = ["Входящие", "Учеба", "Работа", "Домаш�
 $task_array = [
     [
         "name" => "Собеседование в IT компании",
-        "date" => "01.12.2019",
+        "date" => strtotime("01.11.2020"),
         "category" => "Работа",
         "completed" => false
     ],
     [
         "name" => "Выполнить тестовое задание",
-        "date" => "25.12.2019",
+        "date" => strtotime("25.12.2019"),
         "category" => "Работа",
         "completed" => false
     ],
     [
         "name" => "Сделать задание первого раздела",
-        "date" => "21.12.2019",
+        "date" => strtotime("21.12.2019"),
         "category" => "Учеба",
         "completed" => true
     ],
     [
         "name" => "Встреча с другом",
-        "date" => "22.12.2019",
+        "date" => strtotime("05.04.2020 20:00"),
         "category" => "Входящие",
         "completed" => false
     ],
@@ -57,6 +57,37 @@ function task_count($arr, $category)
     }
 
     return $count;
+}
+
+function task_date_ckeck($task_date)
+{
+    if ($task_date != null)
+    {
+        $hours_now = floor(time() / 86400);
+        $hours_task = floor($task_date / 86400);
+        if ($hours_now > $hours_task)
+        {
+            $hours = $hours_now - $hours_task;
+            if ($hours > 24)
+            {
+                $result = false;
+            }
+            else
+            {
+                $result = true;
+            }
+        }
+        else
+        {
+            $result = true;
+        }
+    }
+    else
+    {
+        $result = true;
+    }
+    
+    return $result;
 }
 
 require_once('helpers.php');
