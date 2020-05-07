@@ -61,29 +61,20 @@ function task_count($arr, $category)
 
 function task_date_ckeck($task_date)
 {
-    if ($task_date != null)
-    {
+    if ($task_date != null) {
         $hours_now = floor(time() / 86400);
         $hours_task = floor($task_date / 86400);
-        if ($hours_now > $hours_task)
-        {
+        if ($hours_now > $hours_task) {
             $hours = $hours_now - $hours_task;
-            if ($hours > 24)
-            {
+            if ($hours > 24) {
                 $result = false;
-            }
-            else
-            {
+            } else {
                 $result = true;
             }
-        }
-        else
-        {
+        } else {
             $result = true;
         }
-    }
-    else
-    {
+    } else {
         $result = true;
     }
     

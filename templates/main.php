@@ -3,7 +3,7 @@
 
                 <nav class="main-navigation">
                     <ul class="main-navigation__list">
-                        <?php foreach($project_array as $val): ?>
+                        <?php foreach ($project_array as $val): ?>
                         <li class="main-navigation__list-item">
                             <a class="main-navigation__list-item-link" href="#"><?=$val?></a>
                             <span class="main-navigation__list-item-count"><?=task_count($task_array, $val)?></span>
@@ -35,17 +35,17 @@
 
                     <label class="checkbox">
                         <!--добавить сюда атрибут "checked", если переменная $show_complete_tasks равна единице-->
-                        <input class="checkbox__input visually-hidden show_completed" type="checkbox" <?php if($show_complete_tasks == 1): ?>checked<?php endif; ?>>
+                        <input class="checkbox__input visually-hidden show_completed" type="checkbox" <?php if ($show_complete_tasks == 1): ?>checked<?php endif; ?>>
                         <span class="checkbox__text">Показывать выполненные</span>
                     </label>
                 </div>
 
                 <table class="tasks">
                     <?php
-                        foreach($task_array as $val):
-                        if($show_complete_tasks == 0 && $val['completed']) continue;
+                        foreach ($task_array as $val):
+                        if ($show_complete_tasks == 0 && $val['completed']) continue;
                     ?>
-                    <tr class="tasks__item task<?php if($val['completed']): ?> task--completed<?php endif; if(!task_date_ckeck($val['date'])): ?> task--important<?php endif; ?>">
+                    <tr class="tasks__item task<?php if ($val['completed']): ?> task--completed<?php endif; if (!task_date_ckeck($val['date'])): ?> task--important<?php endif; ?>">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
                                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
