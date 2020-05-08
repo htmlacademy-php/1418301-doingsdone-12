@@ -5,8 +5,8 @@
                     <ul class="main-navigation__list">
                         <?php foreach ($project_array as $val): ?>
                         <li class="main-navigation__list-item">
-                            <a class="main-navigation__list-item-link" href="#"><?=$val?></a>
-                            <span class="main-navigation__list-item-count"><?=task_count($task_array, $val)?></span>
+                            <a class="main-navigation__list-item-link" href="#"><?=$val['title']?></a>
+                            <span class="main-navigation__list-item-count"><?=task_count($task_array, $val['title'])?></span>
                         </li>
                         <?php endforeach; ?>
                     </ul>
@@ -43,13 +43,13 @@
                 <table class="tasks">
                     <?php
                         foreach ($task_array as $val):
-                        if ($show_complete_tasks == 0 && $val['completed']) continue;
+                        if ($show_complete_tasks == 0 && $val['status'] == 1) continue;
                     ?>
-                    <tr class="tasks__item task<?php if ($val['completed']): ?> task--completed<?php endif; if (!task_date_ckeck($val['date'])): ?> task--important<?php endif; ?>">
+                    <tr class="tasks__item task<?php if ($val['status'] == 1): ?> task--completed<?php endif; if (!task_date_ckeck($val['date_execute'])): ?> task--important<?php endif; ?>">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
                                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
-                                <span class="checkbox__text"><?=htmlspecialchars($val['name'])?></span>
+                                <span class="checkbox__text"><?=htmlspecialchars($val['title'])?></span>
                             </label>
                         </td>
 
@@ -57,7 +57,7 @@
                             <a class="download-link" href="#">Home.psd</a>
                         </td>
 
-                        <td class="task__date"><?php if($val['date'] != null) print(date("d.m.Y",$val['date'])); ?></td>
+                        <td class="task__date"><?php if($val['date_execute'] != null) print(date("d.m.Y",strtotime($val['date_execute']))); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </table>
