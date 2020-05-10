@@ -33,7 +33,7 @@
         </header>
 
         <div class="content">
-            <?=$content?>
+            <?=$page_content?>
         </div>
     </div>
 </div>
