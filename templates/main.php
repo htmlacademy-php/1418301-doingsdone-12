@@ -3,10 +3,10 @@
 
                 <nav class="main-navigation">
                     <ul class="main-navigation__list">
-                        <?php foreach ($project_array as $val): ?>
+                        <?php foreach ($project_rows as $val): ?>
                         <li class="main-navigation__list-item">
                             <a class="main-navigation__list-item-link" href="#"><?=$val['title']?></a>
-                            <span class="main-navigation__list-item-count"><?=task_count($task_array, $val['title'])?></span>
+                            <span class="main-navigation__list-item-count"><?=task_count($task_rows, $val['title'])?></span>
                         </li>
                         <?php endforeach; ?>
                     </ul>
@@ -42,7 +42,7 @@
 
                 <table class="tasks">
                     <?php
-                        foreach ($task_array as $val):
+                        foreach ($task_rows as $val):
                         if ($show_complete_tasks == 0 && $val['status'] == 1) continue;
                     ?>
                     <tr class="tasks__item task<?php if ($val['status'] == 1): ?> task--completed<?php endif; if (!task_date_ckeck($val['date_execute'])): ?> task--important<?php endif; ?>">
