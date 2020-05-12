@@ -20,7 +20,7 @@
             </a>
 
             <div class="main-header__side">
-                <a class="main-header__side-item button button--plus open-modal" href="pages/form-task.html">Добавить задачу</a>
+                <a class="main-header__side-item button button--plus open-modal" href="/?page=add-task">Добавить задачу</a>
 
                 <div class="main-header__side-item user-menu">
                     <div class="user-menu__data">
@@ -33,7 +33,13 @@
         </header>
 
         <div class="content">
-            <?=$page_content?>
+            <section class="content__side">
+                <?=$menu?>
+            </section>
+
+            <main class="content__main">
+                <?=$page_content?>
+            </main>
         </div>
     </div>
 </div>
