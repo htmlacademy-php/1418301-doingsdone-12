@@ -24,9 +24,9 @@
                 <table class="tasks">
                     <?php
                         foreach ($task_rows as $val):
-                        if ($show_complete_tasks == 0 && $val['status'] == 1) continue;
+                        if ($show_complete_tasks === 0 && (int)$val['status'] === 1) continue;
                     ?>
-                    <tr class="tasks__item task<?php if ($val['status'] == 1): ?> task--completed<?php endif; if (!task_date_ckeck($val['date_execute'])): ?> task--important<?php endif; ?>">
+                    <tr class="tasks__item task<?php if ((int)$val['status'] === 1): ?> task--completed<?php endif; if (!task_date_ckeck($val['date_execute'])): ?> task--important<?php endif; ?>">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
                                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">

@@ -1,15 +1,19 @@
 <?php
 
 /* Подключение к БД */
-function connect_db()
+function connect_db($force = false)
 {
-    static $host = "localhost";
-    static $user = "root";
-    static $password = "";
-    static $db = "doingsdone";
+    static $con = null;
 
-    $con = mysqli_connect($host, $user, $password, $db);
+    if ($force === true || $con === null) {
+        $host = "localhost";
+        $user = "root";
+        $password = "";
+        $db = "doingsdone";
 
+        $con = mysqli_connect($host, $user, $password, $db);
+    }
+    
     return $con;
 }
 
@@ -69,7 +73,7 @@ function current_project_check($project_id, $current_project_id)
     $result = false;
 
     if ($current_project_id) {
-        if ($project_id == $current_project_id) {
+        if ((int)v$project_id === (int)$current_project_id) {
             $result = true;
         }
     }
@@ -137,7 +141,7 @@ function validate_project_id($project_id, $con)
 {
     $result = false;
 
-    if (value_int_check('prj_id')) {
+    if (value_int_check('project_id')) {
         if (project_existence_check($project_id, $con)) {
             $result = true;
         }
