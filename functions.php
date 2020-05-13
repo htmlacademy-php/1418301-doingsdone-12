@@ -6,12 +6,7 @@ function connect_db($force = false)
     static $con = null;
 
     if ($force === true || $con === null) {
-        $host = "localhost";
-        $user = "root";
-        $password = "";
-        $db = "doingsdone";
-
-        $con = mysqli_connect($host, $user, $password, $db);
+        $con = mysqli_connect("localhost", "root", "", "doingsdone");
     }
     
     return $con;
@@ -36,15 +31,10 @@ function task_date_ckeck($task_date)
 {
     $result = true;
 
-    if ($task_date != null) {
-        $task_date = strtotime($task_date);
-        $hours_now = floor(time() / 3600);
-        $hours_task = floor($task_date / 3600);
-        if ($hours_now > $hours_task) {
-            $hours = $hours_now - $hours_task;
-            if ($hours > 24) {
-                $result = false;
-            }
+    if ($task_date != null && (time() > strtotime($task_date))) {
+        $hours = floor(time() / 3600) - floor(strtotime($task_date) / 3600);
+        if ($hours > 24) {
+            $result = false;
         }
     }
     
@@ -56,12 +46,8 @@ function add_task_date_ckeck($task_date)
 {
     $result = true;
 
-    if (!empty($task_date)) {
-        $task_time = strtotime($task_date);
-        $now_time = strtotime(date('Y-m-d'));
-        if ($now_time > $task_time) {
-            $result = false;
-        }
+    if (!empty($task_date) && strtotime(date('Y-m-d')) > strtotime($task_date)) {
+        $result = false;
     }
     
     return $result;
@@ -72,10 +58,8 @@ function current_project_check($project_id, $current_project_id)
 {
     $result = false;
 
-    if ($current_project_id) {
-        if ((int)v$project_id === (int)$current_project_id) {
-            $result = true;
-        }
+    if ($current_project_id && ((int)$project_id === (int)$current_project_id)) {
+        $result = true;
     }
     
     return $result;
@@ -141,10 +125,8 @@ function validate_project_id($project_id, $con)
 {
     $result = false;
 
-    if (value_int_check('project_id')) {
-        if (project_existence_check($project_id, $con)) {
-            $result = true;
-        }
+    if (value_int_check('project_id') && project_existence_check($project_id, $con)) {
+        $result = true;
     }
 
     return $result;
@@ -178,7 +160,7 @@ function validate_task_form($task_title, $task_project_id, $task_date, $con)
     if (!is_date_valid($task_date)) {
         $errors['task_date'] = 'Неверный формат даты';
     } else if (!add_task_date_ckeck($task_date)) {
-        $errors['task_date'] = 'Дата должна быть больше или равна текущей '.date('Y-m-d');
+        $errors['task_date'] = 'Дата должна быть больше или равна текущей';
     }
 
     return $errors;
