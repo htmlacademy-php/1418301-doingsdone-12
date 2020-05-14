@@ -18,7 +18,7 @@ $con = connect_db();
 $current_project_id = $_GET['project_id'] ?? 0;
 // Проверка на корректность id проекта. Если не корректный, то возвращаем код 404
 if ($current_project_id) {
-    if (!validate_project_id($current_project_id, $con)) {
+    if (!validate_project_id($current_project_id)) {
         http_response_code(404);
         exit;
     }
@@ -26,10 +26,10 @@ if ($current_project_id) {
 
 
 // Получение списка проектов
-$project_rows = get_project_rows($user_id, $con);
+$project_rows = get_project_rows($user_id);
 
 // Получение списка проектов
-$task_rows = get_task_rows($user_id, $current_project_id, $con);
+$task_rows = get_task_rows($user_id, $current_project_id);
 
 // Меню (список проектов)
 $menu = include_template('menu-project.php', compact('current_project_id', 'project_rows'));

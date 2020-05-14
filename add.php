@@ -15,7 +15,7 @@ $con = connect_db();
 $current_project_id = $_GET['project_id'] ?? 0;
 
 // Получение списка проектов
-$project_rows = get_project_rows($user_id, $con);
+$project_rows = get_project_rows($user_id);
 
 $add = $_POST['add'] ?? false;
 if ($add) {
@@ -24,9 +24,9 @@ if ($add) {
     $task_date = $_POST['date'];
     $task_file = $_FILES['file'];
 
-    $errors = validate_task_form($task_title, $task_project_id, $task_date, $con);
+    $errors = validate_task_form($task_title, $task_project_id, $task_date);
     if (count($errors) === 0) {
-        if (add_task($user_id, $task_title, $task_project_id, $task_date, $task_file, $con)) {
+        if (add_task($user_id, $task_title, $task_project_id, $task_date, $task_file)) {
             header("Location: /");
             exit;
         }
