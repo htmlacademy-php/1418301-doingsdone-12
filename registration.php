@@ -17,16 +17,15 @@ $current_project_id = $_GET['project_id'] ?? 0;
 // Получение списка проектов
 $project_rows = get_project_rows($user_id);
 
-$add = $_POST['add'] ?? false;
-if ($add) {
-    $task_title = $_POST['name'];
-    $task_project_id = $_POST['project'];
-    $task_date = $_POST['date'];
-    $task_file = $_FILES['file'];
+$registration = $_POST['registration'] ?? false;
+if ($registration) {
+    $reg_email = $_POST['email'];
+    $reg_password = $_POST['password'];
+    $reg_name = $_POST['name'];
 
-    $errors = validate_task_form($task_title, $task_project_id, $task_date);
+    $errors = validate_registration_form($reg_email, $reg_password, $reg_name);
     if (count($errors) === 0) {
-        if (add_task($user_id, $task_title, $task_project_id, $task_date, $task_file)) {
+        if (add_user($reg_email, $reg_password, $reg_name)) {
             header("Location: /");
             exit;
         }
@@ -37,8 +36,8 @@ if ($add) {
 
 // Меню (список проектов)
 $menu = include_template('menu-project.php', compact('current_project_id', 'project_rows'));
-// Форма добавления задачи
-$page_content = include_template('form-task.php', compact('project_rows', 'errors'));
+// Форма регистрации
+$page_content = include_template('form-registration.php', compact('errors'));
 
 
 // окончательный HTML код
