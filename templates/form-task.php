@@ -1,4 +1,9 @@
-<h2 class="content__main-heading">Добавление задачи</h2>
+<section class="content__side">
+      <?=$menu?>
+    </section>
+            
+    <main class="content__main">
+      <h2 class="content__main-heading">Добавление задачи</h2>
 
         <form class="form" action="" method="post" autocomplete="off" enctype="multipart/form-data">
           <div class="form__row">
@@ -47,3 +52,4 @@
             <input class="button" type="submit" name="add" value="Добавить">
           </div>
         </form>
+      </main>

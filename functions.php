@@ -78,30 +78,36 @@ function value_int_check($value_name)
 }
 
 /* Формирование списка проектов из БД */
-function get_project_rows($user_id)
+function get_project_rows($user)
 {
-    $con = connect_db();
+    $rows = [];
+    if (isset($user['id'])) {
+        $con = connect_db();
 
-    $sql = "SELECT `p`.`id`, `p`.`title`, COUNT(`t`.`id`) AS `task_count` FROM `projects` AS `p` LEFT JOIN `tasks` AS `t` ON `t`.`id_project` = `p`.`id` WHERE `p`.`id_user` = {$user_id} GROUP BY `p`.`id`";
-    $sql_result = mysqli_query($con, $sql);
-    $rows = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
-
+        $sql = "SELECT `p`.`id`, `p`.`title`, COUNT(`t`.`id`) AS `task_count` FROM `projects` AS `p` LEFT JOIN `tasks` AS `t` ON `t`.`id_project` = `p`.`id` WHERE `p`.`id_user` = {$user['id']} GROUP BY `p`.`id`";
+        $sql_result = mysqli_query($con, $sql);
+        $rows = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
+    }
+    
     return $rows;
 }
 
 /* Формирование списка задач из БД */
-function get_task_rows($user_id, $project_id)
+function get_task_rows($user, $project_id)
 {
-    $con = connect_db();
+    $rows = [];
+    if (isset($user['id'])) {
+        $con = connect_db();
 
-    if ($project_id) {
-        $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user_id} AND `t`.`id_project` = ". $project_id;
-    } else {
-        $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user_id}";
+        if ($project_id) {
+            $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user['id']} AND `t`.`id_project` = ". $project_id;
+        } else {
+            $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user['id']}";
+        }
+
+        $sql_result = mysqli_query($con, $sql);
+        $rows = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
     }
-
-    $sql_result = mysqli_query($con, $sql);
-    $rows = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
 
     return $rows;
 }
@@ -251,4 +257,54 @@ function add_user($reg_email, $reg_password, $reg_name)
     $sql_result = mysqli_query($con, $sql);
 
     return $sql_result;
+}
+
+/* Проверка переданных данных в форме входа */
+function validate_auth_form($auth_email, $auth_password)
+{
+    $errors = [];
+    if (empty($auth_email)) {
+        $errors['auth_email'] = 'Поле не заполнено';
+    } else if (!filter_var($auth_email, FILTER_VALIDATE_EMAIL)) {
+        $errors['auth_email'] = 'E-mail должен быть корректным';
+    }
+    if (empty($auth_password)) {
+        $errors['auth_password'] = 'Поле не заполнено';
+    }
+
+    return $errors;
+}
+
+/* Аутентификация пользователя */
+function auth($auth_email, $auth_password)
+{
+    $result = false;
+
+    $con = connect_db();
+
+    $sql = "SELECT * FROM `users` WHERE `email` = '{$auth_email}'";
+    
+    // Делаем запрос
+    $sql_result = mysqli_query($con, $sql);
+
+    if ($sql_result) {
+        $row = mysqli_fetch_assoc($sql_result);
+        if (password_verify($auth_password, $row['password'])) {
+            $_SESSION['user'] = $row;
+            $result = true;
+        }
+    }
+
+    return $result;
+}
+
+function get_user()
+{
+    $user = [];
+
+    if (isset($_SESSION['user'])) {
+        $user = $_SESSION['user'];
+    }
+
+    return $user;
 }
