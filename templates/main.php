@@ -1,4 +1,9 @@
-<h2 class="content__main-heading">Список задач</h2>
+<section class="content__side">
+                <?=$menu?>
+            </section>
+            
+            <main class="content__main">
+            <h2 class="content__main-heading">Список задач</h2>
 
                 <form class="search-form" action="index.php" method="post" autocomplete="off">
                     <input class="search-form__input" type="text" name="" value="" placeholder="Поиск по задачам">
@@ -42,3 +47,4 @@
                     </tr>
                     <?php endforeach; ?>
                 </table>
+        </main>

@@ -1,4 +1,9 @@
-<h2 class="content__main-heading">Регистрация аккаунта</h2>
+<section class="content__side">
+        <?=$menu?>
+      </section>
+            
+      <main class="content__main">
+        <h2 class="content__main-heading">Регистрация аккаунта</h2>
 
           <form class="form" action="" method="post" autocomplete="off">
             <div class="form__row">
@@ -31,3 +36,5 @@
               <input class="button" type="submit" name="registration" value="Зарегистрироваться">
             </div>
           </form>
+          
+        </main>
