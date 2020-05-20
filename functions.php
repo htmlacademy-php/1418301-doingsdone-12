@@ -93,16 +93,19 @@ function get_project_rows($user)
 }
 
 /* Формирование списка задач из БД */
-function get_task_rows($user, $project_id)
+function get_task_rows($user, $project_id = 0, $srh_text = '')
 {
     $rows = [];
     if (isset($user['id'])) {
         $con = connect_db();
 
+        if ($srh_text) 
+            $srh_text = " AND MATCH(`t`.`title`) AGAINST('{$srh_text}')";
+
         if ($project_id) {
-            $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user['id']} AND `t`.`id_project` = ". $project_id;
+            $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user['id']} AND `t`.`id_project` = ". $project_id .$srh_text;
         } else {
-            $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user['id']}";
+            $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user['id']}" .$srh_text;
         }
 
         $sql_result = mysqli_query($con, $sql);
@@ -168,6 +171,12 @@ function validate_project_id($project_id)
 function getPostVal($name)
 {
     return $_POST[$name] ?? "";
+}
+
+/* Извлечение GET переменной */
+function getGetVal($name)
+{
+    return $_GET[$name] ?? "";
 }
 
 /* Загрузка файла задачи */
