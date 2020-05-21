@@ -33,13 +33,19 @@ if ($current_project_id) {
         exit;
     }
 }
+// Получение строки поиска
+if (isset($_GET['srh_text'])) {
+    $srh_text = htmlspecialchars($_GET['srh_text']);
+} else {
+    $srh_text = '';
+}
 
 
 // Получение списка проектов
 $project_rows = get_project_rows($user);
 
-// Получение списка проектов
-$task_rows = get_task_rows($user, $current_project_id);
+// Получение списка задач
+$task_rows = get_task_rows($user, $current_project_id, $srh_text);
 
 // Меню (список проектов)
 $menu = include_template('menu-project.php', compact('current_project_id', 'project_rows'));

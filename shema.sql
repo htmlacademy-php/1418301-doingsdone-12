@@ -40,3 +40,8 @@ CREATE INDEX `user_email` ON `users`(`email`);
 CREATE INDEX `project_user` ON `projects`(`id_user`);
 CREATE INDEX `task_user` ON `tasks`(`id_user`);
 CREATE INDEX `task_project` ON `tasks`(`id_project`);
+
+
+/* Создание полнотекстового индекса */
+
+CREATE FULLTEXT INDEX `task_ft_search` ON `tasks`(`title`);
