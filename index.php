@@ -34,10 +34,25 @@ if ($current_project_id) {
     }
 }
 // Получение строки поиска
-if (isset($_GET['srh_text'])) {
-    $srh_text = htmlspecialchars($_GET['srh_text']);
+if (isset($_GET['query'])) {
+    $query = htmlspecialchars($_GET['query']);
 } else {
-    $srh_text = '';
+    $query = '';
+}
+// Получение значения фильтра
+if (isset($_GET['filter'])) {
+    $filter = htmlspecialchars($_GET['filter']);
+} else {
+    $filter = '';
+}
+
+if (isset($_GET['set_task_execute']) && isset($_GET['status'])) {
+    $task_id = $_GET['set_task_execute'];
+    $status = $_GET['status'];
+    if (set_task_execute($task_id, $status, $user)) {
+        header("Location: /");
+        exit;
+    }
 }
 
 
@@ -45,12 +60,12 @@ if (isset($_GET['srh_text'])) {
 $project_rows = get_project_rows($user);
 
 // Получение списка задач
-$task_rows = get_task_rows($user, $current_project_id, $srh_text);
+$task_rows = get_task_rows($user, $current_project_id, $query, $filter);
 
 // Меню (список проектов)
 $menu = include_template('menu-project.php', compact('current_project_id', 'project_rows'));
 // HTML код главной страницы
-$page_content = include_template('main.php', compact('menu', 'show_complete_tasks', 'current_project_id', 'task_rows'));
+$page_content = include_template('main.php', compact('menu', 'show_complete_tasks', 'current_project_id', 'task_rows', 'filter'));
 
 
 // окончательный HTML код
