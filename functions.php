@@ -93,19 +93,27 @@ function get_project_rows($user)
 }
 
 /* Формирование списка задач из БД */
-function get_task_rows($user, $project_id = 0, $srh_text = '')
+function get_task_rows($user, $project_id = 0, $query = '', $filter = '')
 {
     $rows = [];
     if (isset($user['id'])) {
         $con = connect_db();
 
-        if ($srh_text) 
-            $srh_text = " AND MATCH(`t`.`title`) AGAINST('{$srh_text}')";
+        if ($query) 
+            $query_text = " AND MATCH(`t`.`title`) AGAINST('{$query}')";
+
+        if ($filter === '2') {
+            $filter_text = " AND `date_execute` = DATE(NOW())";
+        } else if ($filter === '3') {
+            $filter_text = " AND `date_execute` > DATE(NOW()) AND `date_execute` < (DATE(NOW()) + INTERVAL 2 DAY)";
+        } else if ($filter === '4') {
+            $filter_text = " AND `date_execute` < DATE(NOW())";
+        }
 
         if ($project_id) {
-            $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user['id']} AND `t`.`id_project` = ". $project_id .$srh_text;
+            $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user['id']} AND `t`.`id_project` = ". $project_id .$query_text .$filter_text;
         } else {
-            $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user['id']}" .$srh_text;
+            $sql = "SELECT `t`.*, `p`.`title` AS `category` FROM `tasks` AS `t` JOIN `projects` AS `p` ON `p`.`id` = `t`.`id_project` WHERE `t`.`id_user` = {$user['id']}" .$query_text .$filter_text;
         }
 
         $sql_result = mysqli_query($con, $sql);
@@ -129,6 +137,28 @@ function project_existence_check($project_id)
 
         if (count($rows) > 0) {
             $result = true;
+        }
+    }
+
+    return $result;
+}
+
+/* Проверка на сущестование проекта в БД по наименованию */
+function project_title_existence_check($project_title)
+{
+    $result = true;
+
+    $con = connect_db();
+
+    $user = get_user();
+
+    if ($project_title && $user) {
+        $sql = "SELECT * FROM `projects` WHERE `title` = '". $project_title ."' AND `id_user` = ". $user['id'];
+        $sql_result = mysqli_query($con, $sql);
+        $rows = mysqli_fetch_all($sql_result);
+
+        if (count($rows) > 0) {
+            $result = false;
         }
     }
 
@@ -179,13 +209,18 @@ function getGetVal($name)
     return $_GET[$name] ?? "";
 }
 
-/* Загрузка файла задачи */
-function upload_task_file($task_file)
-{
-    $file_name = $task_file['name'];
-    $file_path = __DIR__ . '/uploads/';
 
-    move_uploaded_file($task_file['tmp_name'], $file_path . $file_name);
+/* Проверка переданных данных в форме создания задачи */
+function validate_project_form($project_title)
+{
+    $errors = [];
+    if (empty($project_title)) {
+        $errors['project_title'] = 'Поле не заполнено';
+    } else if (!project_title_existence_check($project_title)) {
+        $errors['project_title'] = 'Проект с таким именем уже существует';
+    }
+
+    return $errors;
 }
 
 /* Проверка переданных данных в форме создания задачи */
@@ -195,7 +230,7 @@ function validate_task_form($task_title, $task_project_id, $task_date)
     if (empty($task_title)) {
         $errors['task_title'] = 'Поле не заполнено';
     }
-    if (!project_existence_check($task_project_id, $con)) {
+    if (!project_existence_check($task_project_id)) {
         $errors['task_project_id'] = 'Указан не существующий проект';
     }
     if (!is_date_valid($task_date)) {
@@ -206,30 +241,6 @@ function validate_task_form($task_title, $task_project_id, $task_date)
 
     return $errors;
 }
-
-/* Добавление новой задачи */
-function add_task($user_id, $task_title, $task_project_id, $task_date, $task_file)
-{
-    $con = connect_db();
-
-    if (!empty($task_file)) {
-        // Загрузка фала
-        upload_task_file($task_file);
-        $file_url = '/uploads/' . $task_file['name'];
-
-        $sql = "INSERT INTO `tasks` (`title`, `id_user`, `id_project`, `date_create`, `date_execute`, `status`, `file`) "
-          ."VALUES ('{$task_title}', {$user_id}, {$task_project_id}, NOW(), '{$task_date}', 0, '{$file_url}')";
-    } else {
-        $sql = "INSERT INTO `tasks` (`title`, `id_user`, `id_project`, `date_create`, `date_execute`, `status`) "
-          ."VALUES ('{$task_title}', {$user_id}, {$task_project_id}, NOW(), '{$task_date}', 0)";
-    }
-    
-    // Добавляем задачу в базу
-    $sql_result = mysqli_query($con, $sql);
-
-    return $sql_result;
-}
-
 
 /* Проверка переданных данных в форме регистрации */
 function validate_registration_form($reg_email, $reg_password, $reg_name)
@@ -252,22 +263,6 @@ function validate_registration_form($reg_email, $reg_password, $reg_name)
     return $errors;
 }
 
-/* Добавление нового пользователя */
-function add_user($reg_email, $reg_password, $reg_name)
-{
-    $con = connect_db();
-
-    $hash = password_hash($reg_password, PASSWORD_DEFAULT);
-
-    $sql = "INSERT INTO `users` (`name`, `password`, `email`) "
-          ."VALUES ('{$reg_name}', '{$hash}', '{$reg_email}')";
-    
-    // Добавляем пользователя в базу
-    $sql_result = mysqli_query($con, $sql);
-
-    return $sql_result;
-}
-
 /* Проверка переданных данных в форме входа */
 function validate_auth_form($auth_email, $auth_password)
 {
@@ -282,6 +277,84 @@ function validate_auth_form($auth_email, $auth_password)
     }
 
     return $errors;
+}
+
+/* Добавление нового проекта */
+function add_project($user, $project_title)
+{
+    $con = connect_db();
+
+    $sql = "INSERT INTO `projects` (`title`, `id_user`) "
+          ."VALUES ('{$project_title}', {$user['id']})";
+    
+    // Добавляем провект в базу
+    $sql_result = mysqli_query($con, $sql);
+
+    return $sql_result;
+}
+
+function set_task_execute($task_id, $status, $user)
+{
+    $con = connect_db();
+
+    if ($status === '0') {
+        $status_txt = '1';
+    } else {
+        $status_txt = '0';
+    }
+
+    $sql = "UPDATE `tasks` SET `status` = {$status_txt} WHERE `id` = {$task_id} AND `id_user` = {$user['id']} ";
+    $sql_result = mysqli_query($con, $sql);
+
+    return $sql_result;
+}
+
+/* Загрузка файла задачи */
+function upload_task_file($task_file)
+{
+    $file_name = $task_file['name'];
+    $file_path = __DIR__ . '/uploads/';
+
+    move_uploaded_file($task_file['tmp_name'], $file_path . $file_name);
+}
+
+/* Добавление новой задачи */
+function add_task($user, $task_title, $task_project_id, $task_date, $task_file)
+{
+    $con = connect_db();
+
+    if (!empty($task_file['name'])) {
+        // Загрузка фала
+        upload_task_file($task_file);
+        $file_url = '/uploads/' . $task_file['name'];
+
+        $sql = "INSERT INTO `tasks` (`title`, `id_user`, `id_project`, `date_create`, `date_execute`, `status`, `file`) "
+          ."VALUES ('{$task_title}', {$user['id']}, {$task_project_id}, NOW(), '{$task_date}', 0, '{$file_url}')";
+    } else {
+        $sql = "INSERT INTO `tasks` (`title`, `id_user`, `id_project`, `date_create`, `date_execute`, `status`) "
+          ."VALUES ('{$task_title}', {$user['id']}, {$task_project_id}, NOW(), '{$task_date}', 0)";
+    }
+    
+    // Добавляем задачу в базу
+    $sql_result = mysqli_query($con, $sql);
+
+    return $sql_result;
+}
+
+/* Добавление нового пользователя */
+function add_user($reg_email, $reg_password, $reg_name)
+{
+    $con = connect_db();
+
+    $hash = password_hash($reg_password, PASSWORD_DEFAULT);
+
+    $sql = "INSERT INTO `users` (`name`, `password`, `email`) "
+          ."VALUES ('{$reg_name}', '{$hash}', '{$reg_email}')";
+    
+    // Добавляем пользователя в базу
+    $sql_result = mysqli_query($con, $sql);
+
+    return $sql_result;
 }
 
 /* Аутентификация пользователя */
