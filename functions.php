@@ -77,6 +77,46 @@ function value_int_check($value_name)
     return $result;
 }
 
+/* Рассылка сообщений */
+function send_mail($rows)
+{
+    // Конфигурация траспорта
+    $transport = (new Swift_SmtpTransport('phpdemo.ru', 25))
+     ->setUsername('keks@phpdemo.ru')
+     ->setPassword('htmlacademy');
+
+    // Формирование сообщения
+    $message = new Swift_Message("Уведомления о предстоящих задачах");
+
+    $message->setFrom("keks@phpdemo.ru", "Дела в порядке");
+
+    
+    $cnt = 0;
+    $emails = array_column($rows, 'email');
+    $emails = array_unique($emails);
+    foreach ($emails as $email) {
+        $text = "";
+        foreach ($rows as $task) {
+            if ($task['email'] === $email) {
+                $text .= "'{$task['title']}' на ". date("d.m.Y",strtotime($task['date_execute'])) ."\r\n";
+                $user_name = $task['name'];
+            }
+        }
+        $text = "Уважаемый, {$user_name}. У вас запланирована задача:\r\n". $text;
+
+        $message->setTo([$email => $user_name]);
+        $message->setBody($text);
+
+        // Отправка сообщения
+        $mailer = new Swift_Mailer($transport);
+        $mailer->send($message);
+
+        $cnt++;
+    }
+    
+    return $cnt;
+}
+
 /* Формирование списка проектов из БД */
 function get_project_rows($user)
 {
@@ -119,6 +159,19 @@ function get_task_rows($user, $project_id = 0, $query = '', $filter = '')
         $sql_result = mysqli_query($con, $sql);
         $rows = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
     }
+
+    return $rows;
+}
+
+/* Формирование списка задач, у которых приближается время выполнения, из БД для рассылки */
+function get_mailing_task_rows()
+{
+    $con = connect_db();
+
+    $sql = "SELECT `t`.*, `u`.`name`, `u`.`email` FROM `tasks` AS `t` JOIN `users` as `u` ON `u`.`id` = `t`.`id_user` WHERE `t`.`status` = 0 AND `t`.`date_execute` = DATE(NOW()) ORDER BY `u`.`email` ";
+
+    $sql_result = mysqli_query($con, $sql);
+    $rows = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
 
     return $rows;
 }
