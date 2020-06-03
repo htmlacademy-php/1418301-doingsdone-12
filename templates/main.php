@@ -13,10 +13,10 @@
 
                 <div class="tasks-controls">
                     <nav class="tasks-switch">
-                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=1" class="tasks-switch__item<?php if ($filter === '1' || !$filter): ?> tasks-switch__item--active<?php endif; ?>">Все задачи</a>
-                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=2" class="tasks-switch__item<?php if ($filter === '2'): ?> tasks-switch__item--active<?php endif; ?>">Повестка дня</a>
-                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=3" class="tasks-switch__item<?php if ($filter === '3'): ?> tasks-switch__item--active<?php endif; ?>">Завтра</a>
-                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=4" class="tasks-switch__item<?php if ($filter === '4'): ?> tasks-switch__item--active<?php endif; ?>">Просроченные</a>
+                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=1" class="tasks-switch__item<?php if ((string)$filter === '1' || !$filter): ?> tasks-switch__item--active<?php endif; ?>">Все задачи</a>
+                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=2" class="tasks-switch__item<?php if ((string)$filter === '2'): ?> tasks-switch__item--active<?php endif; ?>">Повестка дня</a>
+                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=3" class="tasks-switch__item<?php if ((string)$filter === '3'): ?> tasks-switch__item--active<?php endif; ?>">Завтра</a>
+                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=4" class="tasks-switch__item<?php if ((string)$filter === '4'): ?> tasks-switch__item--active<?php endif; ?>">Просроченные</a>
                     </nav>
 
                     <label class="checkbox">
@@ -30,7 +30,7 @@
                 <table class="tasks">
                     <?php
                         foreach ($task_rows as $val):
-                        if ($show_complete_tasks === 0 && (int)$val['status'] === 1) continue;
+                        if ((int)$show_complete_tasks === 0 && (int)$val['status'] === 1) continue;
                     ?>
                     <tr class="tasks__item task<?php if ((int)$val['status'] === 1): ?> task--completed<?php endif; if (!task_date_ckeck($val['date_execute'])): ?> task--important<?php endif; ?>">
                         <td class="task__select">

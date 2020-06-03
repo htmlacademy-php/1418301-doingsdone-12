@@ -1,10 +1,10 @@
 <?php
+// Назначение title
+$title = "Дела в порядке";
+
 // Подключение библиотек
 require_once __DIR__.'/helpers.php';
 require_once __DIR__.'/functions.php';
-
-// Назначение title
-$title = "Дела в порядке";
 
 // Определдение пользователя
 $user = get_user();

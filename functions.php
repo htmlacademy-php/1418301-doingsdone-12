@@ -18,7 +18,7 @@ function task_count($arr, $category)
     $count = 0;
     foreach ($arr as $val)
     {
-        if ($val['category'] === $category) {
+        if ((string)$val['category'] === (string)$category) {
             $count++;
         }
     }
@@ -97,7 +97,7 @@ function send_mail($rows)
     foreach ($emails as $email) {
         $text = "";
         foreach ($rows as $task) {
-            if ($task['email'] === $email) {
+            if ((string)$task['email'] === (string)$email) {
                 $text .= "'{$task['title']}' на ". date("d.m.Y",strtotime($task['date_execute'])) ."\r\n";
                 $user_name = $task['name'];
             }
@@ -142,11 +142,11 @@ function get_task_rows($user, $project_id = 0, $query = '', $filter = '')
         if ($query) 
             $query_text = " AND MATCH(`t`.`title`) AGAINST('{$query}')";
 
-        if ($filter === '2') {
+        if ((string)$filter === '2') {
             $filter_text = " AND `date_execute` = DATE(NOW())";
-        } else if ($filter === '3') {
+        } else if ((string)$filter === '3') {
             $filter_text = " AND `date_execute` > DATE(NOW()) AND `date_execute` < (DATE(NOW()) + INTERVAL 2 DAY)";
-        } else if ($filter === '4') {
+        } else if ((string)$filter === '4') {
             $filter_text = " AND `date_execute` < DATE(NOW())";
         }
 
@@ -335,31 +335,40 @@ function validate_auth_form($auth_email, $auth_password)
 /* Добавление нового проекта */
 function add_project($user, $project_title)
 {
-    $con = connect_db();
+    if (isset($user['id'])) {
 
-    $sql = "INSERT INTO `projects` (`title`, `id_user`) "
+        $con = connect_db();
+
+        $sql = "INSERT INTO `projects` (`title`, `id_user`) "
           ."VALUES ('{$project_title}', {$user['id']})";
     
-    // Добавляем провект в базу
-    $sql_result = mysqli_query($con, $sql);
+        // Добавляем провект в базу
+        $sql_result = mysqli_query($con, $sql);
 
-    return $sql_result;
+        return $sql_result;
+    } else {
+        return false;
+    }
 }
 
 function set_task_execute($task_id, $status, $user)
 {
-    $con = connect_db();
+    if (isset($user['id'])) {
+        $con = connect_db();
 
-    if ($status === '0') {
-        $status_txt = '1';
+        if ((string)$status === '0') {
+            $status_txt = '1';
+        } else {
+            $status_txt = '0';
+        }
+
+        $sql = "UPDATE `tasks` SET `status` = {$status_txt} WHERE `id` = {$task_id} AND `id_user` = {$user['id']} ";
+        $sql_result = mysqli_query($con, $sql);
+
+        return $sql_result;
     } else {
-        $status_txt = '0';
+        return false;
     }
-
-    $sql = "UPDATE `tasks` SET `status` = {$status_txt} WHERE `id` = {$task_id} AND `id_user` = {$user['id']} ";
-    $sql_result = mysqli_query($con, $sql);
-
-    return $sql_result;
 }
 
 /* Загрузка файла задачи */
@@ -374,24 +383,28 @@ function upload_task_file($task_file)
 /* Добавление новой задачи */
 function add_task($user, $task_title, $task_project_id, $task_date, $task_file)
 {
-    $con = connect_db();
+    if (isset($user['id'])) {
+        $con = connect_db();
 
-    if (!empty($task_file['name'])) {
-        // Загрузка фала
-        upload_task_file($task_file);
-        $file_url = '/uploads/' . $task_file['name'];
+        if (!empty($task_file['name'])) {
+            // Загрузка фала
+            upload_task_file($task_file);
+            $file_url = '/uploads/' . $task_file['name'];
 
-        $sql = "INSERT INTO `tasks` (`title`, `id_user`, `id_project`, `date_create`, `date_execute`, `status`, `file`) "
-          ."VALUES ('{$task_title}', {$user['id']}, {$task_project_id}, NOW(), '{$task_date}', 0, '{$file_url}')";
+            $sql = "INSERT INTO `tasks` (`title`, `id_user`, `id_project`, `date_create`, `date_execute`, `status`, `file`) "
+              ."VALUES ('{$task_title}', {$user['id']}, {$task_project_id}, NOW(), '{$task_date}', 0, '{$file_url}')";
+        } else {
+            $sql = "INSERT INTO `tasks` (`title`, `id_user`, `id_project`, `date_create`, `date_execute`, `status`) "
+              ."VALUES ('{$task_title}', {$user['id']}, {$task_project_id}, NOW(), '{$task_date}', 0)";
+        }
+        
+        // Добавляем задачу в базу
+        $sql_result = mysqli_query($con, $sql);
+
+        return $sql_result;
     } else {
-        $sql = "INSERT INTO `tasks` (`title`, `id_user`, `id_project`, `date_create`, `date_execute`, `status`) "
-          ."VALUES ('{$task_title}', {$user['id']}, {$task_project_id}, NOW(), '{$task_date}', 0)";
+        return [];
     }
-    
-    // Добавляем задачу в базу
-    $sql_result = mysqli_query($con, $sql);
-
-    return $sql_result;
 }
 
 /* Добавление нового пользователя */
