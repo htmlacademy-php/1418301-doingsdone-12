@@ -13,10 +13,10 @@
 
                 <div class="tasks-controls">
                     <nav class="tasks-switch">
-                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=1" class="tasks-switch__item<?php if ((string)$filter === '1' || !$filter): ?> tasks-switch__item--active<?php endif; ?>">Все задачи</a>
-                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=2" class="tasks-switch__item<?php if ((string)$filter === '2'): ?> tasks-switch__item--active<?php endif; ?>">Повестка дня</a>
-                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=3" class="tasks-switch__item<?php if ((string)$filter === '3'): ?> tasks-switch__item--active<?php endif; ?>">Завтра</a>
-                        <a href="/?<?php if ($current_project_id): ?>project_id=<?=$current_project_id?>&<?php endif; ?>filter=4" class="tasks-switch__item<?php if ((string)$filter === '4'): ?> tasks-switch__item--active<?php endif; ?>">Просроченные</a>
+                        <a href="<?=get_filter_request($current_project_id, 1)?>" class="tasks-switch__item<?php if ((string)$filter === '1' || !$filter): ?> tasks-switch__item--active<?php endif; ?>">Все задачи</a>
+                        <a href="<?=get_filter_request($current_project_id, 2)?>" class="tasks-switch__item<?php if ((string)$filter === '2'): ?> tasks-switch__item--active<?php endif; ?>">Повестка дня</a>
+                        <a href="<?=get_filter_request($current_project_id, 3)?>" class="tasks-switch__item<?php if ((string)$filter === '3'): ?> tasks-switch__item--active<?php endif; ?>">Завтра</a>
+                        <a href="<?=get_filter_request($current_project_id, 4)?>" class="tasks-switch__item<?php if ((string)$filter === '4'): ?> tasks-switch__item--active<?php endif; ?>">Просроченные</a>
                     </nav>
 
                     <label class="checkbox">

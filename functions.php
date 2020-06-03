@@ -346,9 +346,9 @@ function add_project($user, $project_title)
         $sql_result = mysqli_query($con, $sql);
 
         return $sql_result;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 function set_task_execute($task_id, $status, $user)
@@ -366,9 +366,9 @@ function set_task_execute($task_id, $status, $user)
         $sql_result = mysqli_query($con, $sql);
 
         return $sql_result;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 /* Загрузка файла задачи */
@@ -455,4 +455,15 @@ function get_user()
     }
 
     return $user;
+}
+
+function get_filter_request($current_project_id, $val = 1)
+{
+    $request = '/?';
+    if ($current_project_id) {
+        $request .= 'project_id='. (string)$current_project_id .'&';
+    }
+    $request .= 'filter='. (string)$val;
+
+    return $request;
 }
