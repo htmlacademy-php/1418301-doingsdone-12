@@ -1,16 +1,12 @@
 <?php
+// Запуск сессии
+session_start();
+
 // Подключение библиотек
 require_once __DIR__.'/vendor/autoload.php';
 
 require_once __DIR__.'/helpers.php';
 require_once __DIR__.'/functions.php';
-
-
-// Запуск сессии
-session_start();
-
-// Назначение title
-$title = "Дела в порядке";
 
 // Определдение пользователя
 $user = get_user();
