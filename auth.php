@@ -3,8 +3,8 @@
 session_start();
 
 // Подключение библиотек
-require_once __DIR__.'/helpers.php';
-require_once __DIR__.'/functions.php';
+require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/functions.php';
 
 
 // Назначение title
@@ -14,13 +14,15 @@ $title = "Дела в порядке";
 $user = get_user();
 
 // Подключение к БД
-$con = connect_db();
+$link = connect_db();
 
+// Инициализируем массив с ошибками
+$errors = [];
 
 $auth = $_POST['auth'] ?? false;
 if ($auth) {
-    $auth_email = $_POST['email'];
-    $auth_password = $_POST['password'];
+    $auth_email = mysqli_real_escape_string($link, $_POST['email']);
+    $auth_password = mysqli_real_escape_string($link, $_POST['password']);
 
     $errors = validate_auth_form($auth_email, $auth_password);
     if (count($errors) === 0) {
@@ -31,10 +33,7 @@ if ($auth) {
             $errors['auth'] = 'Не правильное сочетание логин пароль';
         }
     }
-} else {
-    $errors = [];
 }
-
 
 // Форма входа
 $page_content = include_template('auth.php', compact('errors'));

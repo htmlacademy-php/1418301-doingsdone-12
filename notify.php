@@ -3,10 +3,10 @@
 session_start();
 
 // Подключение библиотек
-require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-require_once __DIR__.'/helpers.php';
-require_once __DIR__.'/functions.php';
+require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/functions.php';
 
 // Определдение пользователя
 $user = get_user();
@@ -17,7 +17,9 @@ if (!$user) {
 }
 
 // Подключение к БД
-$con = connect_db();
+$link = connect_db();
+
+$cnt = 0;
 
 $mailing_task_rows = get_mailing_task_rows();
 if ($mailing_task_rows) {
@@ -25,4 +27,4 @@ if ($mailing_task_rows) {
 }
 
 
-print "Отправлено писем: " .$cnt;
+print "Отправлено писем: " . $cnt;

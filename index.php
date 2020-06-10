@@ -3,8 +3,8 @@
 session_start();
 
 // Подключение библиотек
-require_once __DIR__.'/helpers.php';
-require_once __DIR__.'/functions.php';
+require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/functions.php';
 
 
 // Назначение title
@@ -23,10 +23,11 @@ $show_complete_tasks = rand(0, 1);
 
 
 // Подключение к БД
-$con = connect_db();
+$link = connect_db();
 
 // Получение значения текущего id проекта
 $current_project_id = $_GET['project_id'] ?? 0;
+$current_project_id = mysqli_real_escape_string($link, (string)$current_project_id);
 // Проверка на корректность id проекта. Если не корректный, то возвращаем код 404
 if ($current_project_id) {
     if (!validate_project_id($current_project_id)) {
@@ -36,13 +37,13 @@ if ($current_project_id) {
 }
 // Получение строки поиска
 if (isset($_GET['query'])) {
-    $query = htmlspecialchars($_GET['query']);
+    $query = mysqli_real_escape_string($link, $_GET['query']);
 } else {
     $query = '';
 }
 // Получение значения фильтра
 if (isset($_GET['filter'])) {
-    $filter = htmlspecialchars($_GET['filter']);
+    $filter = mysqli_real_escape_string($link, $_GET['filter']);
 } else {
     $filter = '';
 }
@@ -66,7 +67,8 @@ $task_rows = get_task_rows($user, $current_project_id, $query, $filter);
 // Меню (список проектов)
 $menu = include_template('menu-project.php', compact('current_project_id', 'project_rows'));
 // HTML код главной страницы
-$page_content = include_template('main.php', compact('menu', 'show_complete_tasks', 'current_project_id', 'task_rows', 'filter'));
+$page_content = include_template('main.php',
+    compact('menu', 'show_complete_tasks', 'current_project_id', 'task_rows', 'filter'));
 
 
 // окончательный HTML код

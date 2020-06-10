@@ -3,8 +3,8 @@
 session_start();
 
 // Подключение библиотек
-require_once __DIR__.'/helpers.php';
-require_once __DIR__.'/functions.php';
+require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/functions.php';
 
 
 // Назначение title
@@ -19,17 +19,21 @@ if (!$user) {
 }
 
 // Подключение к БД
-$con = connect_db();
+$link = connect_db();
 
 // Получение значения текущего id проекта
 $current_project_id = $_GET['project_id'] ?? 0;
+$current_project_id = mysqli_real_escape_string($link, (string)$current_project_id);
 
 // Получение списка проектов
 $project_rows = get_project_rows($user);
 
+// Инициализируем массив с ошибками
+$errors = [];
+
 $add = $_POST['add'] ?? false;
 if ($add) {
-    $project_title = $_POST['name'];
+    $project_title = mysqli_real_escape_string($link, $_POST['name']);
 
     $errors = validate_project_form($project_title);
     if (count($errors) === 0) {
@@ -38,8 +42,6 @@ if ($add) {
             exit;
         }
     }
-} else {
-    $errors = [];
 }
 
 // Меню (список проектов)
