@@ -3,8 +3,8 @@
 $title = "Дела в порядке";
 
 // Подключение библиотек
-require_once __DIR__.'/helpers.php';
-require_once __DIR__.'/functions.php';
+require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/functions.php';
 
 // Определдение пользователя
 $user = get_user();
