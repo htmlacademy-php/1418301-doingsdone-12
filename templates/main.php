@@ -30,23 +30,23 @@
                 <table class="tasks">
                     <?php
                         foreach ($task_rows as $val):
-                        if ((int)$show_complete_tasks === 0 && (int)$val['status'] === 1) {
+                        if (isset($val['status']) && (int)$show_complete_tasks === 0 && (int)$val['status'] === 1) {
                             continue;
                         }
                     ?>
-                    <tr class="tasks__item task<?php if ((int)$val['status'] === 1): ?> task--completed<?php endif; if (!task_date_ckeck($val['date_execute'])): ?> task--important<?php endif; ?>">
+                    <tr class="tasks__item task<?php if (isset($val['status']) && (int)$val['status'] === 1): ?> task--completed<?php endif; if (isset($val['date_execute']) && !task_date_ckeck($val['date_execute'])): ?> task--important<?php endif; ?>">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
-                                <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1" onclick="window.location = '/?set_task_execute=<?=$val['id']?>&status=<?=$val['status']?>'">
-                                <span class="checkbox__text"><?=strip_tags($val['title'])?></span>
+                                <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1" onclick="window.location = '/?set_task_execute=<?=getVal($val, 'id')?>&status=<?=getVal($val, 'status')?>'">
+                                <span class="checkbox__text"><?=getVal($val, 'title')?></span>
                             </label>
                         </td>
 
                         <td class="task__file">
-                            <?php if ($val['file'] != null): ?><a class="download-link" href="<?=$val['file']?>"><?=str_replace('/uploads/', '', $val['file'])?></a><?php endif; ?>
+                            <?php if (isset($val['file']) && $val['file'] !== NULL): ?><a class="download-link" href="<?=strip_tags($val['file'])?>"><?=str_replace('/uploads/', '', strip_tags($val['file']))?></a><?php endif; ?>
                         </td>
 
-                        <td class="task__date"><?php if($val['date_execute'] != null) print(date("d.m.Y",strtotime($val['date_execute']))); ?></td>
+                        <td class="task__date"><?php if (isset($val['date_execute']) && $val['date_execute'] !== NULL) print(date("d.m.Y", strtotime(strip_tags($val['date_execute'])))); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </table>

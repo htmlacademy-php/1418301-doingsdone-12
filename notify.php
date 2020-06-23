@@ -27,4 +27,4 @@ if ($mailing_task_rows) {
 }
 
 
-print "Отправлено писем: " . $cnt;
+print "Отправлено писем: " . (string)$cnt;

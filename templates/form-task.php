@@ -19,7 +19,7 @@
 
             <select class="form__input form__input--select<?php if (isset($errors['task_project_id'])): ?> form__input--error<?php endif; ?>" name="project" id="project">
               <?php foreach ($project_rows as $val): ?>
-              <option value="<?=$val['id']?>"><?=$val['title']?></option>
+              <option value="<?=getVal($val, 'id')?>"><?=getVal($val, 'title')?></option>
               <?php endforeach; ?>
             </select>
 

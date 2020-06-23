@@ -9,23 +9,23 @@
     <link rel="stylesheet" href="css/flatpickr.min.css">
 </head>
 
-<body<?php if (!$user): ?> class="body-background"<?php endif; ?>>
+<body<?php if (!isset($user['name'])): ?> class="body-background"<?php endif; ?>>
 <h1 class="visually-hidden">Дела в порядке</h1>
 
 <div class="page-wrapper">
-    <div class="container<?php if ($user): ?> container--with-sidebar<?php endif; ?>">
+    <div class="container<?php if (isset($user['name'])): ?> container--with-sidebar<?php endif; ?>">
         <header class="main-header">
             <a href="/">
                 <img src="img/logo.png" width="153" height="42" alt="Логотип Дела в порядке">
             </a>
 
-            <?php if ($user): ?>
+            <?php if (isset($user['name'])): ?>
             <div class="main-header__side">
                 <a class="main-header__side-item button button--plus open-modal" href="/add.php">Добавить задачу</a>
 
                 <div class="main-header__side-item user-menu">
                     <div class="user-menu__data">
-                        <p><?=strip_tags($user['name'])?></p>
+                        <p><?=getVal($user, 'name')?></p>
 
                         <a href="/logout.php">Выйти</a>
                     </div>
@@ -52,7 +52,7 @@
             <p>Веб-приложение для удобного ведения списка дел.</p>
         </div>
 
-        <?php if ($user): ?><a class="main-footer__button button button--plus" href="/add.php">Добавить задачу</a><?php endif; ?>
+        <?php if (isset($user['name'])): ?><a class="main-footer__button button button--plus" href="/add.php">Добавить задачу</a><?php endif; ?>
 
         <div class="main-footer__social social">
             <span class="visually-hidden">Мы в соцсетях:</span>

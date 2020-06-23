@@ -22,7 +22,7 @@ if (!$user) {
 $link = connect_db();
 
 // Получение значения текущего id проекта
-$current_project_id = $_GET['project_id'] ?? 0;
+$current_project_id = $_GET['project_id'] ?? '';
 $current_project_id = mysqli_real_escape_string($link, (string)$current_project_id);
 
 // Получение списка проектов
@@ -33,7 +33,7 @@ $errors = [];
 
 $add = $_POST['add'] ?? false;
 if ($add) {
-    $project_title = mysqli_real_escape_string($link, $_POST['name']);
+    $project_title = mysqli_real_escape_string($link, getPostVal('name'));
 
     $errors = validate_project_form($project_title);
     if (count($errors) === 0) {
