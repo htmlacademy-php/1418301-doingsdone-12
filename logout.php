@@ -2,5 +2,7 @@
 // Запуск сессии
 session_start();
 
-unset($_SESSION['user']);
-header("Location: /");
+if (isset($_SESSION['user'])) {
+	unset($_SESSION['user']);
+}
+header("Location: /guest.php");

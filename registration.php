@@ -16,7 +16,7 @@ $user = get_user();
 $link = connect_db();
 
 // Получение значения текущего id проекта
-$current_project_id = $_GET['project_id'] ?? 0;
+$current_project_id = $_GET['project_id'] ?? '';
 $current_project_id = mysqli_real_escape_string($link, (string)$current_project_id);
 
 // Получение списка проектов
@@ -27,9 +27,9 @@ $errors = [];
 
 $registration = $_POST['registration'] ?? false;
 if ($registration) {
-    $reg_email = mysqli_real_escape_string($link, $_POST['email']);
-    $reg_password = mysqli_real_escape_string($link, $_POST['password']);
-    $reg_name = mysqli_real_escape_string($link, $_POST['name']);
+    $reg_email = mysqli_real_escape_string($link, getPostVal('email'));
+    $reg_password = mysqli_real_escape_string($link, getPostVal('password'));
+    $reg_name = mysqli_real_escape_string($link, getPostVal('name'));
 
     $errors = validate_registration_form($reg_email, $reg_password, $reg_name);
     if (count($errors) === 0) {

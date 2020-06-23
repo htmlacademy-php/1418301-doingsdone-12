@@ -21,8 +21,8 @@ $errors = [];
 
 $auth = $_POST['auth'] ?? false;
 if ($auth) {
-    $auth_email = mysqli_real_escape_string($link, $_POST['email']);
-    $auth_password = mysqli_real_escape_string($link, $_POST['password']);
+    $auth_email = mysqli_real_escape_string($link, getPostVal('email'));
+    $auth_password = mysqli_real_escape_string($link, getPostVal('password'));
 
     $errors = validate_auth_form($auth_email, $auth_password);
     if (count($errors) === 0) {

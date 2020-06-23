@@ -29,7 +29,7 @@ function task_date_ckeck($task_date)
 {
     $result = true;
 
-    if ($task_date != null && (time() > strtotime($task_date))) {
+    if ($task_date !== NULL && (time() > strtotime($task_date))) {
         $hours = floor(time() / 3600) - floor(strtotime($task_date) / 3600);
         if ($hours > 24) {
             $result = false;
@@ -71,7 +71,7 @@ function current_project_check($project_id, $current_project_id)
 {
     $result = false;
 
-    if ($current_project_id && ((int)$project_id === (int)$current_project_id)) {
+    if ($project_id && $current_project_id && ((int)$project_id === (int)$current_project_id)) {
         $result = true;
     }
 
@@ -127,22 +127,28 @@ function send_mail($rows)
     $emails = array_unique($emails);
     foreach ($emails as $email) {
         $text = "";
-        foreach ($rows as $task) {
-            if ((string)$task['email'] === (string)$email) {
-                $text .= "'{$task['title']}' на " . date("d.m.Y", strtotime($task['date_execute'])) . "\r\n";
-                $user_name = $task['name'];
+        $user_name = "";
+        if (isset($email)) {
+            foreach ($rows as $task) {
+                if ((string)$task['email'] === (string)$email) {
+                    if(isset($task['title']) && isset($task['date_execute']) && isset($task['name'])) {
+                        $text .= "'{$task['title']}' на " . date("d.m.Y", strtotime($task['date_execute'])) . "\r\n";
+                        $user_name = $task['name'];
+                    }
+                }
             }
+
+            $text = "Уважаемый, {$user_name}. У вас запланирована задача:\r\n" . $text;
+
+            $message->setTo([$email => $user_name]);
+            $message->setBody($text);
+
+            // Отправка сообщения
+            $mailer = new Swift_Mailer($transport);
+            $mailer->send($message);
+
+            $cnt++;
         }
-        $text = "Уважаемый, {$user_name}. У вас запланирована задача:\r\n" . $text;
-
-        $message->setTo([$email => $user_name]);
-        $message->setBody($text);
-
-        // Отправка сообщения
-        $mailer = new Swift_Mailer($transport);
-        $mailer->send($message);
-
-        $cnt++;
     }
 
     return $cnt;
@@ -158,13 +164,14 @@ function send_mail($rows)
 function get_project_rows($user)
 {
     $rows = [];
+
     if (isset($user['id'])) {
         $link = connect_db();
 
         $sql = "SELECT `p`.`id`, `p`.`title`, COUNT(`t`.`id`) AS `task_count` FROM `projects` AS `p` LEFT JOIN `tasks` AS `t` ON `t`.`id_project` = `p`.`id` WHERE `p`.`id_user` = {$user['id']} GROUP BY `p`.`id`";
         $sql_result = mysqli_query($link, $sql);
 
-        if ($sql_result) {
+        if ($sql_result && isset($sql_result->num_rows) && $sql_result->num_rows > 0) {
             $rows = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
         }
     }
@@ -216,7 +223,7 @@ function get_task_rows($user, $project_id = 0, $query = '', $filter = '')
 
         $sql_result = mysqli_query($link, $sql);
 
-        if ($sql_result) {
+        if ($sql_result && isset($sql_result->num_rows) && $sql_result->num_rows > 0) {
             $rows = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
         }
     }
@@ -240,7 +247,7 @@ function get_mailing_task_rows()
 
     $sql_result = mysqli_query($link, $sql);
 
-    if ($sql_result) {
+    if ($sql_result && isset($sql_result->num_rows) && $sql_result->num_rows > 0) {
         $rows = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
     }
 
@@ -268,11 +275,7 @@ function project_existence_check($project_id)
         $sql = "SELECT * FROM `projects` WHERE `id` = " . (string)$project_id;
         $sql_result = mysqli_query($link, $sql);
 
-        if ($sql_result) {
-            $rows = mysqli_fetch_all($sql_result);
-        }
-
-        if (count($rows) > 0) {
+        if ($sql_result && isset($sql_result->num_rows) && $sql_result->num_rows > 0) {
             $result = true;
         }
     }
@@ -303,11 +306,7 @@ function project_title_existence_check($project_title)
         $sql = "SELECT * FROM `projects` WHERE `title` = '" . $project_title . "' AND `id_user` = " . (string)$user['id'];
         $sql_result = mysqli_query($link, $sql);
 
-        if ($sql_result) {
-            $rows = mysqli_fetch_all($sql_result);
-        }
-
-        if (count($rows) > 0) {
+        if ($sql_result && isset($sql_result->num_rows) && $sql_result->num_rows > 0) {
             $result = false;
         }
     }
@@ -336,11 +335,7 @@ function email_existence_check($email)
         $sql = "SELECT * FROM `users` WHERE `email` = '" . $email . "'";
         $sql_result = mysqli_query($link, $sql);
 
-        if ($sql_result) {
-            $rows = mysqli_fetch_all($sql_result);
-        }
-
-        if (count($rows) > 0) {
+        if ($sql_result && isset($sql_result->num_rows) && $sql_result->num_rows > 0) {
             $result = false;
         }
     }
@@ -367,15 +362,40 @@ function validate_project_id($project_id)
 }
 
 /**
+ * Проверка на существование переменной в массиве и ее формирование
+ * по имени ключа
+ *
+ * @param array $arr массив, из которого извлекается переменная
+ * @param string $name имя ключа в массиве
+ *
+ * @return value извлеченнная переменная
+ */
+function getVal($arr = [], $name = '')
+{
+    $value = '';
+
+    if (is_array($arr) && isset($arr[$name])) {
+        $value = strip_tags((string)$arr[$name]);
+    }
+    
+    return $value;
+}
+
+/**
  * Извлекает POST переменную
  *
  * @param $name наименование переменной
  *
  * @return value извлеченнная переменная
  */
-function getPostVal($name)
+function getPostVal($name = '')
 {
-    $value = $_POST[$name] ?? "";
+    $value = '';
+
+    if (isset($_POST[$name])) {
+        $value = strip_tags($_POST[$name]);
+    }
+    
     return $value;
 }
 
@@ -386,9 +406,14 @@ function getPostVal($name)
  *
  * @return value извлеченнная переменная
  */
-function getGetVal($name)
+function getGetVal($name = '')
 {
-    $value = $_GET[$name] ?? "";
+    $value = '';
+    
+    if (isset($_GET[$name])) {
+        $value = strip_tags($_GET[$name]);
+    }
+    
     return $value;
 }
 
@@ -402,8 +427,11 @@ function getGetVal($name)
 function validate_project_form($project_title)
 {
     $errors = [];
+
     if (empty($project_title)) {
         $errors['project_title'] = 'Поле не заполнено';
+    } elseif (strlen($project_title) > 150) {
+        $errors['project_title'] = 'Длина названия не должна превышать 150 символов';
     } elseif (!project_title_existence_check($project_title)) {
         $errors['project_title'] = 'Проект с таким именем уже существует';
     }
@@ -423,12 +451,17 @@ function validate_project_form($project_title)
 function validate_task_form($task_title, $task_project_id, $task_date)
 {
     $errors = [];
+    
     if (empty($task_title)) {
         $errors['task_title'] = 'Поле не заполнено';
+    } elseif (strlen($task_title) > 150) {
+        $errors['task_title'] = 'Длина названия не должна превышать 150 символов';
     }
+
     if (!project_existence_check($task_project_id)) {
         $errors['task_project_id'] = 'Указан не существующий проект';
     }
+
     if (!is_date_valid($task_date) && !empty($task_date)) {
         $errors['task_date'] = 'Неверный формат даты';
     } elseif (!add_task_date_ckeck($task_date)) {
@@ -453,11 +486,14 @@ function validate_registration_form($reg_email, $reg_password, $reg_name)
 
     if (empty($reg_email)) {
         $errors['reg_email'] = 'Поле не заполнено';
+    } elseif (strlen($reg_email) > 128) {
+        $errors['reg_email'] = 'Длина E-mail не должна превышать 128 символов';
     } elseif (!filter_var($reg_email, FILTER_VALIDATE_EMAIL)) {
         $errors['reg_email'] = 'E-mail должен быть корректным';
     } elseif (!email_existence_check($reg_email)) {
         $errors['reg_email'] = 'Пользователь с таким E-mail уже существует';
     }
+
     if (empty($reg_password)) {
         $errors['reg_password'] = 'Поле не заполнено';
     }
@@ -485,9 +521,12 @@ function validate_auth_form($auth_email, $auth_password)
 
     if (empty($auth_email)) {
         $errors['auth_email'] = 'Поле не заполнено';
+    } elseif (strlen($auth_email) > 128) {
+        $errors['auth_email'] = 'Длина E-mail не должна превышать 128 символов';
     } elseif (!filter_var($auth_email, FILTER_VALIDATE_EMAIL)) {
         $errors['auth_email'] = 'E-mail должен быть корректным';
     }
+
     if (empty($auth_password)) {
         $errors['auth_password'] = 'Поле не заполнено';
     }
@@ -558,10 +597,12 @@ function set_task_execute($task_id, $status, $user)
  */
 function upload_task_file($task_file)
 {
-    $file_name = $task_file['name'];
-    $file_path = __DIR__ . '/uploads/';
+    if (isset($task_file['name']) && isset($task_file['tmp_name'])) {
+        $file_name = $task_file['name'];
+        $file_path = __DIR__ . '/uploads/';
 
-    move_uploaded_file($task_file['tmp_name'], $file_path . $file_name);
+        move_uploaded_file($task_file['tmp_name'], $file_path . $file_name);
+    }
 }
 
 /**
@@ -586,7 +627,7 @@ function add_task($user, $task_title, $task_project_id, $task_date, $task_file)
             $task_date_text = "'{$task_date}'";
         }
 
-        if (!empty($task_file['name'])) {
+        if (isset($task_file['name']) && !empty($task_file['name'])) {
             // Загрузка фала
             upload_task_file($task_file);
             $file_url = '/uploads/' . $task_file['name'];
@@ -639,7 +680,7 @@ function add_user($reg_email, $reg_password, $reg_name)
  *
  * @return bool result результат аутентификации
  */
-function auth($auth_email, $auth_password)
+function auth($auth_email = '', $auth_password = '')
 {
     $result = false;
 
@@ -650,9 +691,9 @@ function auth($auth_email, $auth_password)
     // Делаем запрос
     $sql_result = mysqli_query($link, $sql);
 
-    if ($sql_result) {
+    if ($sql_result && isset($sql_result->num_rows) && $sql_result->num_rows > 0) {
         $row = mysqli_fetch_assoc($sql_result);
-        if (password_verify($auth_password, $row['password'])) {
+        if (isset($row['password']) && password_verify($auth_password, $row['password'])) {
             $_SESSION['user'] = $row;
             $result = true;
         }
@@ -688,9 +729,16 @@ function get_user()
 function get_filter_request($project_id, $filter = 1)
 {
     $url = '/';
-    $query = compact('project_id', 'filter');
+
+    if ($project_id) {
+        $query = compact('project_id', 'filter');
+    } else {
+        $query = compact('filter');
+    }
+    
     if (!empty($query)) {
         $url .= '?' . http_build_query($query);
     }
+    
     return $url;
 }

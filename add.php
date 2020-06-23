@@ -22,7 +22,7 @@ if (!$user) {
 $link = connect_db();
 
 // Получение значения текущего id проекта
-$current_project_id = $_GET['project_id'] ?? 0;
+$current_project_id = $_GET['project_id'] ?? '';
 $current_project_id = mysqli_real_escape_string($link, (string)$current_project_id);
 
 // Получение списка проектов
@@ -33,10 +33,13 @@ $errors = [];
 
 $add = $_POST['add'] ?? false;
 if ($add) {
-    $task_title = mysqli_real_escape_string($link, $_POST['name']);
-    $task_project_id = mysqli_real_escape_string($link, $_POST['project']) ?? 0;
-    $task_date = $_POST['date'];
-    $task_file = $_FILES['file'];
+    $task_file = [];
+    $task_title = mysqli_real_escape_string($link, getPostVal('name'));
+    $task_project_id = mysqli_real_escape_string($link, (string)($_POST['project'] ?? 0));
+    $task_date = getPostVal('date');
+    if (isset($_FILES['file'])) {
+        $task_file = $_FILES['file'];
+    }
 
     $errors = validate_task_form($task_title, $task_project_id, $task_date);
     if (count($errors) === 0) {
